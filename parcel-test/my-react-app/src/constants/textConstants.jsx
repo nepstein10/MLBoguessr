@@ -1,0 +1,1 @@
+export const VIDEO_HOST_LINK = "/video-host";
