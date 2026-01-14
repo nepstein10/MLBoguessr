@@ -4,9 +4,9 @@ import axios from "axios";
 import { API_URL } from "../constants/textConstants";
 
 export const VideoHostPage = () => {
-  let { video_id } = useParams();
+  let { video_id } = useParams<{ video_id: string }>();
 
-  const [activeUrl, setActiveUrl] = useState("")
+  const [activeUrl, setActiveUrl] = useState<string>("")
 
   useEffect(() => {
     if (video_id) {
@@ -26,7 +26,11 @@ export const VideoHostPage = () => {
   )
 }
 
-const VideoHostFrame = ({url}) => {
+interface VideoHostFrameProps {
+  url: string;
+}
+
+const VideoHostFrame = ({url}: VideoHostFrameProps) => {
   return (
     <>
     {url && <iframe src={url} width="560" height="315"></iframe>}

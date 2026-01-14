@@ -3,17 +3,22 @@ import axios from "axios";
 import ControlBar from "../components/ControlBar";
 import GuessBar from "../components/GuessBar";
 import { VIDEO_HOST_LINK, API_URL } from "../constants/textConstants";
-// import { getRandomVideo, getVideoById } from "../constants/videoDB";
-// import { View, Text } from "react-native"
+import { Dayjs } from "dayjs";
+
+interface Video {
+  id: string;
+  prev?: string | null;
+  next?: string | null;
+  date?: string;
+}
 
 function GuessPage() {
-  const [initialVideo, setInitialVideo] = useState(undefined)
+  const [initialVideo, setInitialVideo] = useState<Video | undefined>(undefined)
 
-  const [activeVideo, setActiveVideo] = useState(undefined)
-  const [score, setScore] = useState(undefined)
+  const [activeVideo, setActiveVideo] = useState<Video | undefined>(undefined)
+  const [score, setScore] = useState<number | undefined>(undefined)
 
   useEffect(() => {
-    console.log("initial run", initialVideo)
     if (!initialVideo) {
       axios.get(`${API_URL}/videos/reduced`)
       .then((response) => {
@@ -29,7 +34,7 @@ function GuessPage() {
   }, [initialVideo])
 
   // direction: "prev" or "next"
-  const switchVideo = (direction) => {
+  const switchVideo = (direction: "prev" | "next") => {
     axios.get(`${API_URL}/videos/reduced`)
     .then((response) => {
       setActiveVideo(response?.data?.video)
@@ -38,11 +43,11 @@ function GuessPage() {
     // setActiveVideo(getVideoById(activeVideo?.[direction]));
   }
 
-  const submitGuess = (guessDate) => {
+  const submitGuess = (guessDate: Dayjs | null) => {
     console.log("Guess submitted: " + guessDate + "\nAnswer: " + initialVideo?.date);
     const postBody = {
-      datestring: guessDate,
-      start_id: initialVideo?.id
+      datestring: guessDate?.format("YYYY-MM-DD") || "",
+      start_id: initialVideo?.id || ""
     }
     axios.post(`${API_URL}/guess`, postBody)
       .then((response) => setScore(response.data.score))
@@ -52,20 +57,13 @@ function GuessPage() {
   
   return (
     <div>
-      {
-        console.log(activeVideo)}{
-        console.log(initialVideo)
-      } 
       <h1>
         When is this video from?
       </h1>
       {
-        console.log(typeof(activeVideo), activeVideo, activeVideo?.id, activeVideo ? Object.keys(activeVideo) : null )
-      }
-      {
         activeVideo?.id
         ? <iframe src={`${VIDEO_HOST_LINK}/${activeVideo?.id}`} width="580" height="325" />
-        : <div width="580" height="325"><p>foobar</p></div>
+        : <div style={{width: "580px", height: "325px"}}><p>foobar</p></div>
       }
       <ControlBar
         setFunc={switchVideo}
